@@ -1,59 +1,76 @@
-import { useState } from "react";
-
+import { useReducer, useState } from "react";
 import { Plus, Trash2, Check } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getTasksInitialState, taskReducer } from "./reducer/tasksReducer";
 
-interface Todo {
-  id: number;
-  text: string;
-  completed: boolean;
-}
-
+/**
+ * Controla la agregacion, eliminacion y actualizacion de la tarea
+ * @returns -> diseño
+ */
 export const TasksApp = () => {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  /**
+   * Inicializacion del useState para controlar el valor insertado
+   */
   const [inputValue, setInputValue] = useState("");
 
+  /**
+   * Inicializacion del useReducer
+   * Controlamos los metodos de "AGREGAR" | "ACTUALIZAR" | "DELETE"
+   */
+  const [state, dispatch] = useReducer(taskReducer, getTasksInitialState());
+
+  /**
+   * Metodo "AGREGAR"
+   * logica -> /tasksReducer.ts
+   * @returns
+   */
   const addTodo = () => {
     if (inputValue.length === 0) return;
-
-    const newTodo: Todo = {
-      id: Date.now(),
-      text: inputValue.trim(),
-      completed: false,
-    };
-
-    setTodos([...todos, newTodo]);
-
+    dispatch({ type: "ADD_TODO", payload: inputValue });
     setInputValue("");
   };
 
+  /**
+   * Metodo "ACTUALIZAR"
+   * logica -> /tasksReducer.ts
+   * @returns
+   */
+
   const toggleTodo = (id: number) => {
-    const updatedTodos = todos.map((todo) => {
-      if (todo.id === id) {
-        return { ...todo, completed: !todo.completed };
-      }
-      return todo;
-    });
-    setTodos(updatedTodos);
+    dispatch({ type: "TOGGLE_TODO", payload: id });
   };
 
+  /**
+   * Metodo "ELIMINAR"
+   * logica -> /tasksReducer.ts
+   * @returns
+   */
   const deleteTodo = (id: number) => {
-    const newTodos = todos.filter((todo) => todo.id !== id);
-    setTodos(newTodos);
+    dispatch({ type: "DELETE_TODO", payload: id });
   };
 
+  /**
+   * Metodo definido para agregar una tarea
+   * Cuando la tecla presionada es "Enter"
+   * @param e
+   */
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       addTodo();
     }
   };
 
-  const completedCount = todos.filter((todo) => todo.completed).length;
-  const totalCount = todos.length;
+  /**
+   * Variables definidas
+   * var todos: maneja el array de tareas
+   * var completed: maneja el contador de tareas completadas
+   * var length: maneja el contador de tareas totales
+   * Todas las variables hacen referencia al estado actual ("state")
+   */
+  const { todos, completed: completedCount, length: totalCount } = state;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">

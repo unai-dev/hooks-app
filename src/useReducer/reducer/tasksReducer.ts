@@ -1,4 +1,10 @@
 /**
+ * Zod es una libreria que permite validar datos
+ */
+
+import * as z from "zod/v4";
+
+/**
  * Definimos la interfaz para indicar como luce la tarea
  */
 interface Todo {
@@ -23,13 +29,63 @@ export type TaskAction =
   | { type: "TOGGLE_TODO"; payload: number }
   | { type: "DELETE_TODO"; payload: number };
 
+/**
+ * Declaramos un schema que indica como debe lucir la tarea
+ * Basicamente es un validador, comprueba que la tarea luzca de esa manera
+ */
+const TodoSchema = z.object({
+  id: z.number(),
+  text: z.string(),
+  completed: z.boolean(),
+});
+
+/**
+ * Declaramos un schema que indica como debe lucir el estado de la tarea
+ */
+const TaskStateScheme = z.object({
+  todos: z.array(TodoSchema),
+  length: z.number(),
+  completed: z.number(),
+  pending: z.number(),
+});
+
 export const getTasksInitialState = (): TaskState => {
-  return {
-    todos: [],
-    completed: 0,
-    pending: 0,
-    length: 0,
-  };
+  const localStorageState = localStorage.getItem("tasks-state");
+
+  /**
+   * Si el estado del local storge esta vacio devolvemos el estado por defecto
+   * Evitamos que el programa pete
+   */
+  if (!localStorageState) {
+    return {
+      todos: [],
+      completed: 0,
+      pending: 0,
+      length: 0,
+    };
+  }
+
+  /**
+   * Validamos que el local storage coincida con el schema que hemos definido
+   */
+  const result = TaskStateScheme.safeParse(JSON.parse(localStorageState));
+
+  /**
+   * Si el resultado da error devolvemos un error y el estado inicial
+   * Evitamos que el programa pete
+   */
+  if (result.error) {
+    console.error(result.error);
+    return {
+      todos: [],
+      completed: 0,
+      pending: 0,
+      length: 0,
+    };
+  }
+
+  // Devolvemos la data
+  return result.data;
 };
 
 export const taskReducer = (

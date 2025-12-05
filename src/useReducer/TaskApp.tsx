@@ -1,4 +1,4 @@
-import { useReducer, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { Plus, Trash2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,13 +22,20 @@ export const TasksApp = () => {
    */
   const [state, dispatch] = useReducer(taskReducer, getTasksInitialState());
 
+  useEffect(() => {
+    localStorage.setItem("tasks-state", JSON.stringify(state));
+  }, [state]);
+
   /**
    * Metodo "AGREGAR"
    * logica -> /tasksReducer.ts
    * @returns
    */
   const addTodo = () => {
-    if (inputValue.length === 0) return;
+    if (inputValue.length < 3) {
+      alert("La tarea debe tener al menos 3 caracteres");
+      return;
+    }
     dispatch({ type: "ADD_TODO", payload: inputValue });
     setInputValue("");
   };
@@ -59,7 +66,9 @@ export const TasksApp = () => {
    */
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
-      addTodo();
+      if (!(inputValue.length < 3)) {
+        addTodo();
+      }
     }
   };
 

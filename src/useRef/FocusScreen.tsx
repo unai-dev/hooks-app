@@ -4,7 +4,7 @@ export const FocusScreen = () => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleClick = () => {
-    inputRef.current?.select();
+    inputRef.current?.focus();
   };
 
   return (

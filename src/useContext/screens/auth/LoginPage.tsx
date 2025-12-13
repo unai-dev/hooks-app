@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { UserContext } from "@/useContext/context/UserContext";
-import { useContext, useState } from "react";
+import { use, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { toast } from "sonner";
 
 export const LoginPage = () => {
-  const { login } = useContext(UserContext);
+  const { login } = use(UserContext);
 
   const [userId, setUserId] = useState("");
 
@@ -16,6 +16,7 @@ export const LoginPage = () => {
     event.preventDefault();
 
     const result = login(+userId);
+
     if (!result) {
       toast.error("Usuario no encontrado");
       return;
